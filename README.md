@@ -1,6 +1,6 @@
 # EventHub — Proposta de arquitetura (DDD, mensageria e SOLID)
 
-Reorganização arquitetural do **EventHub**, plataforma web de eventos culturais, para a avaliação N2 da disciplina Projeto e Arquitetura de Software (Prof. Luiz C. Camargo, PhD).
+Reorganização arquitetural do **EventHub**, plataforma web de eventos culturais
 
 O código-fonte atual está em: https://github.com/Dominic-Krelling/EventHub-Plataforma-de-Eventos-Culturais
 
