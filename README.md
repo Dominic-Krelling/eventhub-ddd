@@ -4,7 +4,6 @@ Reorganização arquitetural do **EventHub**, plataforma web de eventos culturai
 
 O código-fonte atual está em: https://github.com/Dominic-Krelling/EventHub-Plataforma-de-Eventos-Culturais
 
-> Este repositório contém a **organização proposta** e a documentação. Conforme o enunciado, o código não foi migrado para a nova estrutura. O que existe aqui é a hierarquia de diretórios, o mapeamento do código atual para ela e os diagramas.
 
 ## Conteúdo
 
