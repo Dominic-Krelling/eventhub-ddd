@@ -1,0 +1,115 @@
+@startuml c4-nivel4-codigo-curtidas
+title EventHub - Código do componente Curtidas (C4, nível 4, estado-alvo)
+
+left to right direction
+hide empty members
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #1d4e89
+  ArrowColor #1f2933
+}
+skinparam interface {
+  BackgroundColor #eef2f7
+  BorderColor #1d4e89
+}
+
+package "presentation  (interactions/likes/presentation)" as pres {
+  class LikeController {
+    +toggleLike(req, res)
+    +getLikeStatus(req, res)
+    +listLikedEvents(req, res)
+  }
+  class LikeRoutes
+  class ValidateIdParam <<middleware>>
+}
+
+package "application  (interactions/likes/application)" as app {
+  class ToggleLike {
+    -likes: LikeRepository
+    -events: EventRepository
+    -tx: TransactionManager
+    +execute(userId, eventId): LikeResult
+  }
+  class GetLikeStatus {
+    +execute(userId, eventId): LikeResult
+  }
+  class ListLikedEvents {
+    +execute(userId): Event[]
+  }
+  class LikeResult <<DTO>> {
+    +liked: boolean
+    +likesCount: number
+  }
+}
+
+package "domain  (interactions/likes/domain)" as dom {
+  class Like <<entity>> {
+    +userId
+    +eventId
+  }
+  interface LikeRepository {
+    +find(userId, eventId): Like
+    +add(userId, eventId)
+    +remove(userId, eventId)
+    +countByEvent(eventId): number
+    +listEventsLikedBy(userId): Event[]
+  }
+  interface EventRepository {
+    +findById(eventId): Event
+  }
+  interface TransactionManager {
+    +run(work)
+  }
+  class EventNotFoundError <<error>>
+}
+
+package "infrastructure  (interactions/likes/infrastructure)" as infra {
+  class SequelizeLikeRepository
+  class SequelizeEventRepository
+  class SequelizeTransactionManager
+  class LikeModel <<Sequelize>>
+}
+
+package "futuro" as fut {
+  interface DomainEventPublisher {
+    +publish(event)
+  }
+  class OutboxPublisher
+}
+
+LikeRoutes --> ValidateIdParam : usa
+LikeRoutes --> LikeController : encaminha
+LikeController --> ToggleLike
+LikeController --> GetLikeStatus
+LikeController --> ListLikedEvents
+
+ToggleLike ..> LikeRepository
+ToggleLike ..> EventRepository
+ToggleLike ..> TransactionManager
+ToggleLike ..> LikeResult : devolve
+ToggleLike ..> EventNotFoundError : lança
+ToggleLike ..> DomainEventPublisher : LikeAdded / LikeRemoved (futuro)
+GetLikeStatus ..> LikeRepository
+ListLikedEvents ..> LikeRepository
+
+LikeRepository ..> Like
+
+SequelizeLikeRepository ..|> LikeRepository
+SequelizeEventRepository ..|> EventRepository
+SequelizeTransactionManager ..|> TransactionManager
+SequelizeLikeRepository --> LikeModel
+OutboxPublisher ..|> DomainEventPublisher
+
+note bottom of ToggleLike
+  Hoje essa lógica está em likeService.js,
+  que importa Sequelize e os modelos
+  diretamente (achado 5.5, DIP).
+  Aqui o caso de uso depende só de
+  interfaces; as implementações Sequelize
+  são injetadas.
+end note
+
+@enduml
