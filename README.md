@@ -15,10 +15,6 @@ O código-fonte atual está em: https://github.com/Dominic-Krelling/EventHub-Pla
 | [`docs/diagramas/`](docs/diagramas) | Fontes PlantUML: C4 níveis 1, 2 e 3, fluxo da Outbox e mapa de contextos |
 | [`src/`](src) | Estrutura de pastas proposta (backend), apenas diretórios |
 
-## Como ver os diagramas
-
-Os arquivos `.puml` podem ser abertos em https://www.plantuml.com/plantuml, na extensão **PlantUML** do VS Code ou em qualquer ferramenta compatível.
-
 ## Resumo da proposta
 
 - **Monólito modular** organizado por contexto de negócio (`identity`, `events`, `interactions`, `discovery`, `notifications`), cada um com as camadas `domain`, `application`, `infrastructure` e `presentation`.
