@@ -1,0 +1,41 @@
+@startuml contextos-ddd
+title EventHub - Mapa de Bounded Contexts (DDD)
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+
+package "Identidade e Perfil" as identity {
+  [Usuário]
+  [Perfil]
+  [Autenticação]
+}
+
+package "Gestão de Eventos" as events {
+  [Evento]
+  [Regras de publicação]
+}
+
+package "Interações" as interactions {
+  [Curtida]
+  [Comentário]
+}
+
+package "Descoberta" as discovery {
+  [Feed]
+  [Pesquisa]
+}
+
+package "Notificações (futuro)" as notifications {
+  [Notification]
+  [NotificationHandler]
+}
+
+events ..> identity : identifica o autor
+interactions ..> identity : identifica quem interage
+interactions ..> events : referencia o evento (eventId)
+discovery ..> events : consulta eventos
+discovery ..> identity : consulta perfis públicos
+notifications ..> events : reage a EventCreated / EventUpdated
+notifications ..> interactions : reage a CommentCreated / LikeAdded
+
+@enduml

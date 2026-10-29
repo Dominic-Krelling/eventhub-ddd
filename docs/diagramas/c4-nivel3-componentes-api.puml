@@ -1,0 +1,32 @@
+@startuml c4-nivel3-componentes-api
+!include <C4/C4_Component>
+
+title EventHub - Componentes da API (C4, nível 3, estado-alvo)
+
+Container(front, "Frontend", "Vue 3", "Chama a API via HTTP/JSON")
+ContainerDb(banco, "Banco de dados", "MySQL / MariaDB", "Dados do EventHub")
+Container(broker, "RabbitMQ (futuro)", "AMQP", "Distribui eventos de domínio")
+
+Container_Boundary(api, "API Express") {
+  Component(rotas, "Rotas e Middlewares", "Express Router", "Autenticação JWT, validação de entrada, tratamento de erros, formato das respostas")
+  Component(controller, "Controllers (presentation)", "Express", "Traduzem HTTP para chamadas aos casos de uso")
+  Component(casos, "Casos de uso (application)", "JavaScript", "RegisterUser, LoginUser, CreateEvent, ToggleLike, AddComment...")
+  Component(dominio, "Regras de domínio (domain)", "JavaScript", "Entidades e regras: Usuário, Evento, Curtida, Comentário")
+  Component(repos, "Interfaces de repositório (domain)", "JavaScript", "UserRepository, EventRepository, LikeRepository, CommentRepository")
+  Component(sequelize, "Repositórios Sequelize (infrastructure)", "Sequelize", "Implementam as interfaces e acessam o banco")
+  Component(storage, "Armazenamento de imagens (infrastructure)", "fs", "EventImageStorage e ProfileImageStorage")
+  Component(outbox, "Publicador da Outbox (futuro)", "Node.js", "Lê a tabela Outbox e publica no broker")
+}
+
+Rel(front, rotas, "Requisição", "HTTP/JSON")
+Rel(rotas, controller, "Encaminha")
+Rel(controller, casos, "Chama")
+Rel(casos, dominio, "Aplica regras")
+Rel(casos, repos, "Depende de (abstração)")
+Rel(sequelize, repos, "Implementa")
+Rel(casos, storage, "Remove/grava imagens")
+Rel(sequelize, banco, "Lê e grava", "SQL")
+Rel(casos, outbox, "Registra evento na mesma transação")
+Rel(outbox, broker, "Publica", "AMQP")
+
+@enduml

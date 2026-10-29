@@ -1,0 +1,21 @@
+@startuml c4-nivel1-contexto
+!include <C4/C4_Context>
+
+title EventHub - Diagrama de Contexto (C4, nível 1)
+
+Person(usuario, "Usuário", "Visitante ou pessoa cadastrada que descobre, publica, curte e comenta eventos culturais")
+
+System(eventhub, "EventHub", "Plataforma web de eventos culturais: cadastro, publicação, feed, perfis, curtidas e comentários")
+
+SystemDb(banco, "MySQL / MariaDB", "Armazena usuários, eventos, curtidas e comentários")
+
+System_Ext(broker, "RabbitMQ (futuro)", "Broker de mensageria que distribui eventos de domínio aos consumidores")
+
+System_Ext(consumidores, "Consumidores (futuro)", "Notificações, métricas e indexação de busca")
+
+Rel(usuario, eventhub, "Navega, publica eventos, comenta e curte", "HTTPS")
+Rel(eventhub, banco, "Lê e grava dados", "SQL")
+Rel(eventhub, broker, "Publica eventos de domínio", "AMQP")
+Rel(broker, consumidores, "Entrega mensagens", "AMQP")
+
+@enduml

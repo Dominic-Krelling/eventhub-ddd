@@ -1,0 +1,25 @@
+@startuml c4-nivel2-conteineres
+!include <C4/C4_Container>
+
+title EventHub - Diagrama de Contêineres (C4, nível 2)
+
+Person(usuario, "Usuário", "Visitante ou pessoa cadastrada")
+
+System_Boundary(eventhub, "EventHub") {
+  Container(front, "Frontend", "Vue 3, Vite", "Views, componentes, router, stores e serviços HTTP")
+  Container(api, "API", "Node.js, Express, Sequelize", "Autenticação, regras de aplicação e endpoints REST")
+  ContainerDb(banco, "Banco de dados", "MySQL / MariaDB", "Usuários, eventos, curtidas, comentários e (futuro) tabela Outbox")
+  ContainerDb(uploads, "Uploads locais", "Sistema de arquivos", "Imagens de eventos e fotos de perfil")
+  Container(broker, "RabbitMQ (futuro)", "AMQP", "Filas, confirmação de entrega, reentrega e DLQ")
+  Container(workers, "Workers (futuro)", "Node.js", "Consumidores idempotentes de notificações e métricas")
+}
+
+Rel(usuario, front, "Usa", "HTTPS")
+Rel(front, api, "Chama", "HTTP/JSON")
+Rel(api, banco, "Lê e grava", "Sequelize / SQL")
+Rel(api, uploads, "Grava e remove imagens", "fs")
+Rel(api, broker, "Publica eventos de domínio (via Outbox)", "AMQP")
+Rel(broker, workers, "Entrega mensagens", "AMQP")
+Rel(workers, banco, "Atualiza dados derivados", "SQL")
+
+@enduml

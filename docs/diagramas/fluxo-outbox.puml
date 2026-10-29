@@ -1,0 +1,46 @@
+@startuml fluxo-outbox
+title Fluxo de publicação de evento com Outbox e RabbitMQ (proposta)
+
+actor "Usuário" as U
+participant "Frontend Vue" as F
+participant "API Express" as A
+participant "CreateEvent\n(caso de uso)" as C
+database "Banco de dados" as DB
+participant "Publicador\nda Outbox" as P
+queue "RabbitMQ" as MQ
+participant "Consumidor\nde métricas" as M
+participant "Consumidor de\nnotificações" as N
+queue "DLQ" as DLQ
+
+U -> F : Preenche e envia o formulário
+F -> A : POST /events
+A -> C : executa(dados, userId)
+
+group Transação única
+  C -> DB : grava Evento
+  C -> DB : grava mensagem EventCreated na Outbox
+end
+
+C --> A : evento criado
+A --> F : 201 Created
+F --> U : confirmação
+
+... de forma assíncrona ...
+
+P -> DB : lê mensagens pendentes da Outbox
+P -> MQ : publica EventCreated (v1)
+P -> DB : marca mensagem como publicada
+
+MQ -> M : entrega EventCreated
+M -> M : processa (idempotente)
+M --> MQ : ack
+
+MQ -> N : entrega EventCreated
+alt processado com sucesso
+  N --> MQ : ack
+else falha após as tentativas
+  N --> MQ : nack
+  MQ -> DLQ : encaminha a mensagem
+end
+
+@enduml
